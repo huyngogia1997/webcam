@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class>
+	<ServiceInformation>
+		<host>pos.bachhoaxanh.com</host>
+		<client_id>appmwg</client_id>
+		<username>157447</username>
+		<password>Huyng@1997</password>
+		<ip>096.3218.412</ip>
+		<secret>secret</secret>
+		<scope>openid offline_access</scope>
+	</ServiceInformation>
+</class>
