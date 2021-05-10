@@ -1,0 +1,9 @@
+{
+  "error_code": 0,
+  "error_message": "successful",
+  "data": {
+    "prob": 0.99,
+    "uid": "12345",
+    "issame": true
+  }
+}

@@ -3,7 +3,6 @@ package bhx;
 import bhx.common.Const;
 import bhx.presentation.view.MainLayout;
 import bhx.utility.resources.MRes;
-import org.omg.CORBA.ServiceInformation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -29,7 +28,6 @@ public class App {
 
 	private static Dimension mainFrameSize = new Dimension(800, 500);
 
-	private static ServiceInformation serviceInformations;
 
 	public static void main(String[] args) {
 		createAndShowGUI();

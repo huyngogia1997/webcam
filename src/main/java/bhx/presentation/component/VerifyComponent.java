@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
-public class RegisterComponent extends JPanel {
+public class VerifyComponent extends JPanel {
     JPanel cameraPa = new JPanel();
     JPanel infoP = new JPanel();
     private static Webcam webcam;
@@ -25,25 +25,16 @@ public class RegisterComponent extends JPanel {
     private JButton captureBtn;
     private JButton captureImage;
     private BufferedImage image = null;
-    private static RegisterComponent registerComponent = null;
+    private static VerifyComponent registerComponent = null;
 
-    public static RegisterComponent init(){
+    public static VerifyComponent init(){
         if(registerComponent == null){
-            registerComponent = new RegisterComponent();
+            registerComponent = new VerifyComponent();
         }
         return  registerComponent;
     }
-    private void initWebCam() {
-        if (webcam == null) {
-            try {
-                webcam = Webcam.getWebcams(1000).stream().filter(wc -> wc.getName().contains("170")).findFirst().get();
-                webcam.setViewSize(WebcamResolution.QVGA.getSize());
-            } catch (Exception e) {
-                e.getStackTrace();
-            }
-        }
-    }
-    public RegisterComponent() {
+
+    public VerifyComponent() {
         GridBagLayout layout = new GridBagLayout();
         this.setLayout(layout);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -61,7 +52,6 @@ public class RegisterComponent extends JPanel {
             cameraPa.add(webcamPanel);
             webcamPanel.start();
         }
-
         this.add(cameraPa,gbc);
 
         gbc.gridx = 1;
@@ -79,7 +69,6 @@ public class RegisterComponent extends JPanel {
         captureImageContainerP.setMaximumSize(new Dimension(390,200));
         captureImageContainerP.setMinimumSize(new Dimension(390,200));
         captureImageContainerP.setLayout(boxlayout);
-
         captureBtn = new JButton(">>");
         captureBtn.setPreferredSize(new Dimension(50,30));
         captureImageContainerP.add(captureBtn);
@@ -121,7 +110,7 @@ public class RegisterComponent extends JPanel {
         checkP.setPreferredSize(new Dimension(370,50));
         checkP.setMaximumSize(new Dimension(370,50));
         checkP.setMinimumSize(new Dimension(370,50));
-        checkBtn = new JButton("Register");
+        checkBtn = new JButton("Verify");
         checkP.add(checkBtn);
         infoP.add(checkP);
 
@@ -143,25 +132,27 @@ public class RegisterComponent extends JPanel {
             ImageIcon imageIcon = new ImageIcon(image);
 
             Image img = imageIcon.getImage() ;
-            Image newimg = img.getScaledInstance( 200, 150,  java.awt.Image.SCALE_SMOOTH ) ;
+            Image newimg = img.getScaledInstance( 200, 150,  Image.SCALE_SMOOTH ) ;
             captureImage.setIcon(new ImageIcon( newimg ));
         });
 
         checkBtn.addActionListener((event)->{
             try {
                 System.out.println("Check: "+usernameTxt.getText());
+
                 // reset
                 successL.setText("");
                 errorL.setText("");
 
                 if(isEmpty(usernameTxt.getText())){
-                    errorL.setText("username can not be empty");
+                    errorL.setText("Username can not be empty");
                     return;
                 }
                 if(!usernameTxt.getText().matches("^[a-zA-Z0-9._]+$")){
                     errorL.setText("Username is invalid");
                     return;
                 }
+
                 if(Objects.isNull(image)){
                     errorL.setText("Photo is required");
                     return;
@@ -169,20 +160,16 @@ public class RegisterComponent extends JPanel {
 
                 Optional<MasterResponse> optionalMasterResponse = RecognizeFaceService.verify(usernameTxt.getText(),image);
                 // check existed
-
-                if(optionalMasterResponse.filter(re->re.getError_code() ==9).isPresent()) {
-                    errorL.setText("Username is registered");
-                    return;
-                }
-                RecognizeFaceService.register(usernameTxt.getText(),image)
+                RecognizeFaceService.verify(usernameTxt.getText(),image)
                     .ifPresent(masterResponse->{
                         System.out.println(masterResponse);
-                        switch (masterResponse.getError_code()) {
+                                switch (masterResponse.getError_code()) {
                                     case 0:
-                                        captureImage.setIcon(null);
-                                        image = null;
-                                        usernameTxt.setText("");
-                                        successL.setText("Successful");
+                                        if(masterResponse.getData().getIssame()){
+                                            successL.setText("Is same with "+masterResponse.getData().getProb()*100+"%" );
+                                        }else{
+                                            errorL.setText("Is not same with "+masterResponse.getData().getProb()*100+"%" );
+                                        }
                                         break;
                                     case 2:
                                         errorL.setText("Detected face is too small");
@@ -202,6 +189,9 @@ public class RegisterComponent extends JPanel {
                                     case 400:
                                         errorL.setText("Username is required");
                                         break;
+                                    case 9:
+                                        errorL.setText("Username is not registered");
+                                        break;
                                     default:
                                         errorL.setText("Error");
                                         break;
@@ -215,5 +205,17 @@ public class RegisterComponent extends JPanel {
     private boolean isEmpty(String str){
         return  str == null || str.isEmpty();
     }
-
+    private void initWebCam() {
+        if (webcam == null) {
+            try {
+                webcam = Webcam.getWebcams(1000).stream().filter(wc -> wc.getName().contains("170")).findFirst().get();
+                webcam.setViewSize(WebcamResolution.QVGA.getSize());
+            } catch (Exception e) {
+                e.getStackTrace();
+            }
+        }
+    }
+    private void onStop(){
+        webcamPanel.stop();
+    }
 }
