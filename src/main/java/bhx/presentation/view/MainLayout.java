@@ -46,9 +46,9 @@ public class MainLayout extends JFrame {
     }
 
     private JPanel createTabPanel() {
-//        registerTab = RegisterComponent.init();
-//        verifyComponent = VerifyComponent.init();
-        testWebcamUIHandlerComponent = TestWebcamUIHandlerComponent.init();
+        registerTab = RegisterComponent.init();
+        verifyComponent = VerifyComponent.init();
+//        testWebcamUIHandlerComponent = TestWebcamUIHandlerComponent.init();
 
         JPanel tabPanel = new JPanel();
         tabPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
@@ -56,9 +56,9 @@ public class MainLayout extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
         ImageIcon icon = bhx.utility.resources.MRes.getImageIcon("tablayout.png");
 
-        tabbedPane.addTab("Test", icon, testWebcamUIHandlerComponent);
-//        tabbedPane.addTab("Register", icon, registerTab);
-//        tabbedPane.addTab("Check", icon, verifyComponent);
+//        tabbedPane.addTab("Test", icon, testWebcamUIHandlerComponent);
+        tabbedPane.addTab("Register", icon, registerTab);
+        tabbedPane.addTab("Check", icon, verifyComponent);
         tabPanel.add(tabbedPane);
         return tabPanel;
     }
