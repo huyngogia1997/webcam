@@ -1,5 +1,6 @@
 package bhx.presentation.view;
 
+import bhx.handler.DefaultHandler;
 import bhx.presentation.component.RegisterComponent;
 import bhx.presentation.component.TestWebcamUIHandlerComponent;
 import bhx.presentation.component.VerifyComponent;
@@ -15,13 +16,22 @@ public class MainLayout extends JFrame {
     private RegisterComponent registerTab;
     private VerifyComponent verifyComponent;
     private TestWebcamUIHandlerComponent testWebcamUIHandlerComponent;
-
+    public static DefaultHandler webcamHandler;
     public static MainLayout ins() {
         if (ins == null) {
             ins = new MainLayout();
             ins.setTitle("demo");
         }
         return ins;
+    }
+    private void initWebCam() {
+        try {
+            webcamHandler = new DefaultHandler("http://222.253.145.118:8989",this);
+            webcamHandler.getWebcamUIHandler().init();
+            webcamHandler.getWebcamUIHandler().start();
+        } catch (Exception e) {
+            e.getStackTrace();
+        }
     }
     private MainLayout() {
         initGUI();
@@ -35,6 +45,7 @@ public class MainLayout extends JFrame {
     }
 
     private JPanel createHeaderPanel() {
+        initWebCam();
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(Constant.bhxBackgroundColor);
         headerPanel.add(new JLabel(MRes.getImageIcon("bhxHeader.png")));
@@ -48,7 +59,6 @@ public class MainLayout extends JFrame {
     private JPanel createTabPanel() {
         registerTab = RegisterComponent.init();
         verifyComponent = VerifyComponent.init();
-//        testWebcamUIHandlerComponent = TestWebcamUIHandlerComponent.init();
 
         JPanel tabPanel = new JPanel();
         tabPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
@@ -56,9 +66,15 @@ public class MainLayout extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
         ImageIcon icon = bhx.utility.resources.MRes.getImageIcon("tablayout.png");
 
-//        tabbedPane.addTab("Test", icon, testWebcamUIHandlerComponent);
         tabbedPane.addTab("Register", icon, registerTab);
         tabbedPane.addTab("Check", icon, verifyComponent);
+        tabbedPane.addChangeListener(e ->{
+            if(tabbedPane.getSelectedIndex() == 0 ){
+                registerTab.switchView();
+            }else{
+                verifyComponent.switchView();
+            }
+        });
         tabPanel.add(tabbedPane);
         return tabPanel;
     }

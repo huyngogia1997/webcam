@@ -15,9 +15,9 @@ public class DefaultWebcamUIHandler implements WebcamUIHandler {
     private JFrame frame;
     private Webcam webcam;
     private WebcamPanel webcamPanel;
-    private String titleError = "Không tìm thấy camera nào";
-    private String contentError = "Vui lòng kiểm tra lại";
-    private String titleSelect = "Chọn webcam mà bạn muốn sử dụng";
+    private String titleError = "Not found any camera";
+    private String contentError = "Please check again";
+    private String titleSelect = "Choose webcam";
     private String contentSelect = "";
 
     DefaultWebcamUIHandler(JFrame frame, String titleError, String contentError, String titleSelect, String contentSelect) {

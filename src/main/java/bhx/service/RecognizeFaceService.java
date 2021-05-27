@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Scanner;
 
 public class RecognizeFaceService {
     public static String REGISTER_URL = "/f4r_ai/register";
@@ -30,7 +31,7 @@ public class RecognizeFaceService {
         baos.close();
 
         HttpClient httpClient = HttpClients.createDefault();
-        HttpPost request = new HttpPost("http://222.253.145.118:8989" + url);
+        HttpPost request = new HttpPost( new Scanner(RecognizeFaceService.class.getResourceAsStream("/host.conf"), "UTF-8").useDelimiter("\\A").next() + url);
         MultipartEntityBuilder multipartEntity = MultipartEntityBuilder.create();
         multipartEntity.addBinaryBody("img_bytes", imageInByte, ContentType.create("image/jpg"), "image.jpg");
         request.setEntity(multipartEntity.build());

@@ -1,7 +1,10 @@
 package bhx.presentation.component;
 
 import bhx.dto.MasterResponse;
+import bhx.handler.DefaultHandler;
+import bhx.presentation.view.MainLayout;
 import bhx.service.RecognizeFaceService;
+import bhx.ui.WebcamUIHandler;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import com.github.sarxos.webcam.WebcamResolution;
@@ -16,8 +19,6 @@ import java.util.Optional;
 public class RegisterComponent extends JPanel {
     JPanel cameraPa = new JPanel();
     JPanel infoP = new JPanel();
-    private static Webcam webcam;
-    private static WebcamPanel webcamPanel;
     private JTextField usernameTxt;
     private JLabel errorL;
     private JLabel successL;
@@ -33,16 +34,7 @@ public class RegisterComponent extends JPanel {
         }
         return  registerComponent;
     }
-    private void initWebCam() {
-        if (webcam == null) {
-            try {
-                webcam = Webcam.getWebcams(1000).stream().filter(wc -> wc.getName().contains("170")).findFirst().get();
-                webcam.setViewSize(WebcamResolution.QVGA.getSize());
-            } catch (Exception e) {
-                e.getStackTrace();
-            }
-        }
-    }
+
     public RegisterComponent() {
         GridBagLayout layout = new GridBagLayout();
         this.setLayout(layout);
@@ -54,13 +46,11 @@ public class RegisterComponent extends JPanel {
         cameraPa.setLayout(new CardLayout());
         cameraPa.setBorder(BorderFactory.createLineBorder(Color.black));
 
-        initWebCam();
-        if (webcam != null) {
-            webcamPanel = new WebcamPanel(webcam, false);
-            webcamPanel.setMirrored(true);
-            cameraPa.add(webcamPanel);
-            webcamPanel.start();
-        }
+        cameraPa.add(MainLayout.webcamHandler.webcamPanel());
+
+//        MainLayout.webcamHandler.stop();
+//        MainLayout.webcamHandler.start();
+
 
         this.add(cameraPa,gbc);
 
@@ -137,14 +127,9 @@ public class RegisterComponent extends JPanel {
 
         captureBtn.addActionListener(e->{
             try {
-                image = webcam.getImage();
+                image = MainLayout.webcamHandler.takePhotoAndRenderUI(captureImage);
             } catch (Exception ioException) {
             }
-            ImageIcon imageIcon = new ImageIcon(image);
-
-            Image img = imageIcon.getImage() ;
-            Image newimg = img.getScaledInstance( 200, 150,  java.awt.Image.SCALE_SMOOTH ) ;
-            captureImage.setIcon(new ImageIcon( newimg ));
         });
 
         checkBtn.addActionListener((event)->{
@@ -155,7 +140,7 @@ public class RegisterComponent extends JPanel {
                 errorL.setText("");
 
                 if(isEmpty(usernameTxt.getText())){
-                    errorL.setText("username can not be empty");
+                    errorL.setText("Username can not be empty");
                     return;
                 }
                 if(!usernameTxt.getText().matches("^[a-zA-Z0-9._]+$")){
@@ -170,10 +155,20 @@ public class RegisterComponent extends JPanel {
                 Optional<MasterResponse> optionalMasterResponse = RecognizeFaceService.verify(usernameTxt.getText(),image);
                 // check existed
 
-                if(optionalMasterResponse.filter(re->re.getError_code() ==9).isPresent()) {
-                    errorL.setText("Username is registered");
+                if(!optionalMasterResponse.isPresent()){
+                    errorL.setText("error");
                     return;
                 }
+                int respCode = optionalMasterResponse.get().getError_code();
+                if(respCode != 9){
+                    if(respCode == 0){
+                        errorL.setText("Username registed");
+                        return;
+                    }
+                    errorL.setText(optionalMasterResponse.get().getError_message());
+                    return;
+                }
+
                 RecognizeFaceService.register(usernameTxt.getText(),image)
                     .ifPresent(masterResponse->{
                         System.out.println(masterResponse);
@@ -215,5 +210,7 @@ public class RegisterComponent extends JPanel {
     private boolean isEmpty(String str){
         return  str == null || str.isEmpty();
     }
-
+    public void switchView(){
+        cameraPa.add(MainLayout.webcamHandler.webcamPanel());
+    }
 }

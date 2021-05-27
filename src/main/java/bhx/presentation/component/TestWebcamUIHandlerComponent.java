@@ -4,6 +4,7 @@ import bhx.facerecognization.http.Response;
 import bhx.facerecognization.http.HttpService;
 import bhx.facerecognization.http.ResponseState;
 import bhx.handler.DefaultHandler;
+import bhx.presentation.view.MainLayout;
 import bhx.ui.DefaultWebcamUIHandler;
 import bhx.ui.WebcamUIHandler;
 
@@ -25,7 +26,6 @@ public class TestWebcamUIHandlerComponent extends JPanel {
     private JButton captureBtn;
     private JButton captureImage;
     private static TestWebcamUIHandlerComponent registerComponent = null;
-    private DefaultHandler webcamHandler;
 
     public static TestWebcamUIHandlerComponent init(){
         if(registerComponent == null){
@@ -36,7 +36,6 @@ public class TestWebcamUIHandlerComponent extends JPanel {
 
     public TestWebcamUIHandlerComponent() {
 
-        initWebcam();
 
         GridBagLayout layout = new GridBagLayout();
         this.setLayout(layout);
@@ -48,8 +47,7 @@ public class TestWebcamUIHandlerComponent extends JPanel {
         cameraPa.setLayout(new CardLayout());
         cameraPa.setBorder(BorderFactory.createLineBorder(Color.black));
 
-        cameraPa.add(webcamHandler.webcamPanel());
-        webcamHandler.start();
+        cameraPa.add(MainLayout.webcamHandler.webcamPanel());
 
         this.add(cameraPa,gbc);
 
@@ -125,7 +123,7 @@ public class TestWebcamUIHandlerComponent extends JPanel {
         this.add(infoP,gbc);
 
         captureBtn.addActionListener(e->{
-            webcamHandler.takePhotoAndRenderUI(captureImage);
+            MainLayout.webcamHandler.takePhotoAndRenderUI(captureImage);
         });
 
         checkBtn.addActionListener((event)->{
@@ -150,7 +148,7 @@ public class TestWebcamUIHandlerComponent extends JPanel {
 //                }
 
 
-                    Optional<Response> responseOptional = webcamHandler.verifyLastImage(usernameTxt.getText());
+                    Optional<Response> responseOptional = MainLayout.webcamHandler.verifyLastImage(usernameTxt.getText());
 
                     if(!responseOptional.isPresent()) {
                         errorL.setText("Request error");
@@ -164,7 +162,7 @@ public class TestWebcamUIHandlerComponent extends JPanel {
                         return;
                     }
 
-                    webcamHandler.registerLastImage(usernameTxt.getText()).ifPresent(response -> {
+                MainLayout.webcamHandler.registerLastImage(usernameTxt.getText()).ifPresent(response -> {
                         successL.setText(response.getError_message());
                     });
 
@@ -180,7 +178,7 @@ public class TestWebcamUIHandlerComponent extends JPanel {
         try {
 
 //            defaultWebcamUIHandler.init();
-            webcamHandler = new DefaultHandler("",this);
+            MainLayout.webcamHandler = new DefaultHandler("",this);
 
         } catch (Exception e) {
             e.printStackTrace();

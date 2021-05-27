@@ -1,6 +1,8 @@
 package bhx.presentation.component;
 
 import bhx.dto.MasterResponse;
+import bhx.handler.DefaultHandler;
+import bhx.presentation.view.MainLayout;
 import bhx.service.RecognizeFaceService;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
@@ -45,13 +47,9 @@ public class VerifyComponent extends JPanel {
         cameraPa.setLayout(new CardLayout());
         cameraPa.setBorder(BorderFactory.createLineBorder(Color.black));
 
-        initWebCam();
-        if (webcam != null) {
-            webcamPanel = new WebcamPanel(webcam, false);
-            webcamPanel.setMirrored(true);
-            cameraPa.add(webcamPanel);
-            webcamPanel.start();
-        }
+//        MainLayout.webcamHandler.stop();
+//        MainLayout.webcamHandler.start();
+//        cameraPa.add(MainLayout.webcamHandler.webcamPanel());
         this.add(cameraPa,gbc);
 
         gbc.gridx = 1;
@@ -86,6 +84,7 @@ public class VerifyComponent extends JPanel {
         captureImageP.add(captureImage);
         captureImageContainerP.add(captureImageP);
 
+//        cameraPa.add(MainLayout.webcamHandler.webcamPanel());
         infoP.add(captureImageContainerP);
 
 
@@ -126,14 +125,9 @@ public class VerifyComponent extends JPanel {
 
         captureBtn.addActionListener(e->{
             try {
-                image = webcam.getImage();
+                image = MainLayout.webcamHandler.takePhotoAndRenderUI(captureImage);
             } catch (Exception ioException) {
             }
-            ImageIcon imageIcon = new ImageIcon(image);
-
-            Image img = imageIcon.getImage() ;
-            Image newimg = img.getScaledInstance( 200, 150,  Image.SCALE_SMOOTH ) ;
-            captureImage.setIcon(new ImageIcon( newimg ));
         });
 
         checkBtn.addActionListener((event)->{
@@ -205,17 +199,12 @@ public class VerifyComponent extends JPanel {
     private boolean isEmpty(String str){
         return  str == null || str.isEmpty();
     }
-    private void initWebCam() {
-        if (webcam == null) {
-            try {
-                webcam = Webcam.getWebcams(1000).stream().filter(wc -> wc.getName().contains("170")).findFirst().get();
-                webcam.setViewSize(WebcamResolution.QVGA.getSize());
-            } catch (Exception e) {
-                e.getStackTrace();
-            }
-        }
-    }
+
     private void onStop(){
         webcamPanel.stop();
+    }
+
+    public void switchView(){
+        cameraPa.add(MainLayout.webcamHandler.webcamPanel());
     }
 }
